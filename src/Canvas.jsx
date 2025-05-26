@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react';
 import Paper from 'paper';
 import './Canvas.css';
+import { shuffle, getCard, flipCards } from './utils';
 
 const Canvas = () => {
   const canvasRef = useRef(null);
@@ -10,38 +11,17 @@ const Canvas = () => {
 
     Paper.view.viewSize = new Paper.Size(window.innerWidth, window.innerHeight);
 
-    // * based on standard poker card dims (mm)
-    const scale = 5;
-    const cardWidth = 63.5 * scale;
-    const cardHeight = 88.9 * scale;
-    const cardRadius = 3.5 * scale;
+    const shuffledCards = shuffle();
+    console.log(shuffledCards);
 
     const point = Paper.view.bounds.topLeft;
-    const size = new Paper.Size(cardWidth, cardHeight);
+    const aceOfSpades = getCard('SPADE-1', point);
+    const aceOfDiamonds = getCard('DIAMOND-1', point.add([50, 0]));
+    const aceOfClubs = getCard('CLUB-1', point.add([100, 0]));
+    const aceOfHearts = getCard('HEART-1', point.add([150, 0]));
 
-    const cardClip = new Paper.Shape.Rectangle({
-      point: point,
-      size: size,
-      radius: cardRadius,
-    });
-    const cardBackground = new Paper.Shape.Rectangle({
-      point: point,
-      size: size,
-      radius: cardRadius,
-      fillColor: 'white',
-      strokeColor: 'black'
-    });
-    const cardRaster = new Paper.Raster({
-      source: 'SPADE-1.svg',
-      position: cardClip.bounds.center,
-    });
-    cardRaster.onLoad = () => {
-      cardRaster.scaling = 0.99 * cardWidth / cardRaster.width;
-    };
-    const card = new Paper.Group({
-      children: [cardClip, cardBackground, cardRaster],
-      clipped: true
-    })
+    const cards = [aceOfSpades, aceOfDiamonds, aceOfClubs, aceOfHearts];
+    flipCards(cards);
 
     return () => {
       Paper.project.clear();
