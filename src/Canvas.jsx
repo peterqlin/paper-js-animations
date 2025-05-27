@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import Paper from 'paper';
 import './Canvas.css';
-import { shuffle, getCard, flipCards } from './utils';
+import { shuffle, getCard, flipCards, fanCards } from './utils';
 
 const Canvas = () => {
   const canvasRef = useRef(null);
@@ -14,14 +14,16 @@ const Canvas = () => {
     const shuffledCards = shuffle();
     console.log(shuffledCards);
 
-    const point = Paper.view.bounds.topLeft;
-    const aceOfSpades = getCard('SPADE-1', point);
-    const aceOfDiamonds = getCard('DIAMOND-1', point.add([50, 0]));
-    const aceOfClubs = getCard('CLUB-1', point.add([100, 0]));
-    const aceOfHearts = getCard('HEART-1', point.add([150, 0]));
+    const point = Paper.view.bounds.topLeft.add([300, 100]);
+    const cards = Array.from(shuffledCards, (name, _) => getCard(name, point));
 
-    const cards = [aceOfSpades, aceOfDiamonds, aceOfClubs, aceOfHearts];
-    flipCards(cards);
+    const someCards = cards.slice(0, 20);
+    console.log('some cards:', someCards);
+
+    cards[0].onClick = () => {
+      fanCards(cards);
+    }
+    // flipCards(cards);
 
     return () => {
       Paper.project.clear();
