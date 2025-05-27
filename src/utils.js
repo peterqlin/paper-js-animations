@@ -28,7 +28,8 @@ export const getCard = (cardName, point) => {
     size: size,
     radius: cardRadius,
     fillColor: 'white',
-    strokeColor: 'black'
+    strokeColor: 'black',
+    strokeWidth: 2
   });
   const cardRaster = new Paper.Raster({
     source: `${cardName}.svg`,
@@ -41,7 +42,7 @@ export const getCard = (cardName, point) => {
     children: [cardClip, cardBackground, cardRaster],
     clipped: true,
     applyMatrix: false,
-    pivot: cardClip.bounds.bottomLeft.add([cardRadius, -cardRadius])
+    pivot: cardClip.bounds.center
   });
   card.sendToBack();
   return card;
@@ -50,6 +51,8 @@ export const getCard = (cardName, point) => {
 export const fanCards = (cardList) => {
   // * perform a card fan
   Array.from(cardList, (card, index) => {
+    // TODO: fix pivot issue
+    // card.pivot = card.bounds.bottomLeft.add([card.radius, -card.radius]);
     card.tween(
       { rotation: 0 },
       { rotation: -(index / cardList.length) * 360 },
@@ -58,6 +61,28 @@ export const fanCards = (cardList) => {
         easing: 'easeInOutQuad'
       }
     );
+  });
+};
+
+export const orbitCards = (event, initialPositions, cardList) => {
+  // * orbit several cards
+  const pathWidth = 100;
+  const offset = pathWidth * cardList.length;
+  const speed = 5;
+  Array.from(cardList, (card, index) => {
+    const sine = Math.sin(offset * index + speed * event.count * Math.PI / 180);
+    const cosine = Math.cos(offset * index + speed * event.count * Math.PI / 180);
+    if (cosine > 0) {
+      if (sine > 0) {
+        // * this part is scuffed when the settings aren't right
+        card.bringToFront();
+      }
+      card.scaling = 1 - 0.5 * Math.abs(sine);
+    } else {
+      card.sendToBack();
+      card.scaling = 0.2 + 0.3 * Math.abs(sine);
+    }
+    card.position = initialPositions[index].add([pathWidth * sine, 0]);
   });
 };
 
