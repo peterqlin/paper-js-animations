@@ -38,8 +38,22 @@ export const getCard = (cardName, point) => {
   cardRaster.onLoad = () => {
     cardRaster.scaling = 0.99 * cardWidth / cardRaster.width;
   }
+  const cardShading = new Paper.Shape.Rectangle({
+    point: point,
+    size: size,
+    radius: cardRadius,
+    fillColor: new Paper.Color(0, 0, 0, 0.8),
+    opacity: 0
+  });
+  const cardBack = new Paper.Shape.Rectangle({
+    point: point,
+    size: size,
+    radius: cardRadius,
+    fillColor: new Paper.Color(1, 0, 0, 1),
+    opacity: 0
+  });
   const card = new Paper.Group({
-    children: [cardClip, cardBackground, cardRaster],
+    children: [cardClip, cardBackground, cardRaster, cardBack, cardShading],
     clipped: true,
     applyMatrix: false,
     pivot: cardClip.bounds.center
@@ -84,6 +98,19 @@ export const orbitCards = (event, initialPositions, cardList) => {
     }
     card.position = initialPositions[index].add([pathWidth * sine, 0]);
   });
+};
+
+export const inspectCard = (event, card, pos) => {
+  const mousePos = event.point;
+  const distVec = mousePos.subtract(pos).normalize();
+  card.matrix.set(1, distVec.x, distVec.x, 1, 0, 0);
+  if (distVec.y > 0) {
+    card.children[card.children.length - 1].opacity = Math.abs(distVec.x);
+  } else {
+    card.children[card.children.length - 1].opacity = 0;
+  }
+  card.scale(1 - 0.5 * Math.abs(distVec.x));
+  card.position = pos;
 };
 
 export const flipCards = (cardList) => {
